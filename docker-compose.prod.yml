@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------------------
+  # 1. PostgreSQL Database
+  # ----------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: nomini-prod-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nomini_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-NominiSecurePass2026!}
+      POSTGRES_DB: ${POSTGRES_DB:-nomini_db}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - nomini_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nomini_user} -d ${POSTGRES_DB:-nomini_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nomini-network
+
+  # ----------------------------------------------------
+  # 2. NestJS Backend API
+  # ----------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nomini-prod-backend
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-nomini_user}:${POSTGRES_PASSWORD:-NominiSecurePass2026!}@postgres:5432/${POSTGRES_DB:-nomini_db}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-nomini-super-secret-jwt-key-prod-2026}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+    ports:
+      - "127.0.0.1:4000:4000"
+    networks:
+      - nomini-network
+
+  # ----------------------------------------------------
+  # 3. Next.js Frontend
+  # ----------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
+    container_name: nomini-prod-frontend
+    restart: always
+    depends_on:
+      - backend
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      BACKEND_INTERNAL_URL: http://backend:4000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      - nomini-network
+
+volumes:
+  nomini_pgdata:
+    name: nomini_prod_pgdata
+
+networks:
+  nomini-network:
+    name: nomini-prod-network
+    driver: bridge
+

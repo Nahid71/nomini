@@ -1,0 +1,16 @@
+{
+  "name": "nomini-platform",
+  "version": "1.0.0",
+  "description": "Nomini Group Digital Platform - Agritech, Crowdfarming, DPP & Operations",
+  "scripts": {
+    "dev:backend": "cd backend && npm run start:dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:backend": "cd backend && npm run prisma:generate && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "prisma:seed": "cd backend && npm run prisma:seed",
+    "prisma:studio": "cd backend && npx prisma studio"
+  },
+  "keywords": ["nomini", "agritech", "dpp", "crowdfarming", "kanban", "nestjs", "nextjs"],
+  "author": "Nomini Team",
+  "license": "ISC"
+}

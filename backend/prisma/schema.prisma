@@ -1,0 +1,208 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------
+// Section 2.1: Core User, RBAC & Task Schema
+// ----------------------------------------------------
+
+enum Role {
+  CUSTOMER
+  INVESTOR
+  SUPPLIER
+  EMPLOYEE
+  FARM_OPERATOR
+  ADMIN
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  COMPLETED
+}
+
+model User {
+  id            String       @id @default(uuid())
+  email         String       @unique
+  password      String
+  fullName      String
+  role          Role         @default(CUSTOMER)
+  department    String?
+  avatarUrl     String?
+
+  assignedTasks Task[]       @relation("EmployeeTasks")
+  managedTasks  Task[]       @relation("ManagerTasks")
+  investments   Investment[]
+  orders        Order[]
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("users")
+}
+
+model Task {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  priority    String     @default("MEDIUM") // LOW, MEDIUM, HIGH, URGENT
+  dueDate     DateTime?
+  completedAt DateTime?
+
+  assignedTo  String     // Employee User ID
+  assignedBy  String     // Admin/Manager User ID
+
+  employee    User       @relation("EmployeeTasks", fields: [assignedTo], references: [id])
+  manager     User       @relation("ManagerTasks", fields: [assignedBy], references: [id])
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@map("tasks")
+}
+
+// ----------------------------------------------------
+// Section 2.2: E-Commerce & DPP Schema
+// ----------------------------------------------------
+
+model Product {
+  id          String      @id @default(uuid())
+  title       String
+  description String?
+  priceUSD    Decimal     @db.Decimal(10, 2)
+  stockQty    Int
+  imageUrl    String?
+  category    String?
+  sku         String?     @unique
+  originFarm  String?
+
+  batchId     String?     @unique
+  batch       Batch?      @relation(fields: [batchId], references: [id])
+
+  orderItems  OrderItem[]
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("products")
+}
+
+model Batch {
+  id             String    @id @default(uuid())
+  batchNumber    String    @unique
+  farmPlot       String?
+  harvestDate    DateTime
+  sustainability Json      // Carbon footprint, water conservation, organic certification, pesticide status
+  timeline       Json?     // Array of supply chain milestone events
+  labReportUrl   String?
+  geoCoordinates String?
+
+  product        Product?
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("batches")
+}
+
+// ----------------------------------------------------
+// Section 2.3: Crowdfarming Investment Schema
+// ----------------------------------------------------
+
+model CrowdfarmProject {
+  id              String       @id @default(uuid())
+  title           String
+  description     String?
+  location        String?
+  targetAmount    Decimal      @db.Decimal(12, 2)
+  raisedAmount    Decimal      @default(0) @db.Decimal(12, 2)
+  sharePrice      Decimal      @db.Decimal(10, 2)
+  totalShares     Int          @default(1000)
+  availableShares Int          @default(1000)
+  expectedRoi     String?
+  harvestCycle    String?
+  imageUrl        String?
+
+  investments     Investment[]
+
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@map("crowdfarm_projects")
+}
+
+model Investment {
+  id             String           @id @default(uuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [id])
+  projectId      String
+  project        CrowdfarmProject @relation(fields: [projectId], references: [id])
+  sharesBooked   Int
+  totalPaidUSD   Decimal          @db.Decimal(12, 2)
+  certificateUrl String?
+  status         String           @default("CONFIRMED") // PENDING, CONFIRMED, ISSUED
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@map("investments")
+}
+
+model FinancialPlan {
+  id              String   @id @default(uuid())
+  title           String   @default("Nomini Commercial Agriculture Project")
+  totalPoolUSD    Decimal  @default(800000) @db.Decimal(12, 2)
+  useOfFunds      Json     // Array of { area, desc, amount, percent }
+  projections     Json     // Array of { year, sales, costs, profit, margin }
+  riskMitigation  Json?    // Array of string bullet points
+  investorRewards Json?    // Array of string bullet points
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("financial_plans")
+}
+
+// ----------------------------------------------------
+// E-Commerce Order Entities (Checkout support)
+// ----------------------------------------------------
+
+model Order {
+  id              String      @id @default(uuid())
+  userId          String?
+  user            User?       @relation(fields: [userId], references: [id])
+  customerEmail   String
+  customerName    String
+  totalUSD        Decimal     @db.Decimal(10, 2)
+  status          String      @default("PAID") // PENDING, PAID, SHIPPED, DELIVERED
+  shippingAddress String?
+  paymentMethod   String      @default("STRIPE") // STRIPE, PAYPAL, WISE, CRYPTO
+
+  items           OrderItem[]
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  priceUSD  Decimal  @db.Decimal(10, 2)
+
+  @@map("order_items")
+}
