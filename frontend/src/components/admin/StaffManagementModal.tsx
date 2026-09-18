@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { User, Role } from '@/types';
+import { FileUpload } from '@/components/common/FileUpload';
 import {
   X,
   UserPlus,
@@ -45,6 +46,7 @@ export const StaffManagementModal: React.FC<StaffManagementModalProps> = ({
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'ADMIN' | 'EMPLOYEE' | 'FARM_OPERATOR'>('EMPLOYEE');
   const [department, setDepartment] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -88,6 +90,7 @@ export const StaffManagementModal: React.FC<StaffManagementModalProps> = ({
         password,
         role,
         department: department.trim() || undefined,
+        avatarUrl: avatarUrl.trim() || undefined,
       });
 
       setSuccess(`Staff account '${fullName}' provisioned successfully!`);
@@ -95,6 +98,7 @@ export const StaffManagementModal: React.FC<StaffManagementModalProps> = ({
       setEmail('');
       setPassword('');
       setDepartment('');
+      setAvatarUrl('');
       setRole('EMPLOYEE');
       loadStaff();
       if (onStaffChanged) onStaffChanged();
@@ -383,6 +387,14 @@ export const StaffManagementModal: React.FC<StaffManagementModalProps> = ({
                 />
               </div>
             </div>
+
+            <FileUpload
+              label="Staff Profile Photo (Optional)"
+              value={avatarUrl}
+              onChange={(url) => setAvatarUrl(url)}
+              accept="image/*"
+              helperText="Upload staff profile photo from your computer (stored permanently on server)"
+            />
 
             <div className="pt-4 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
               <button

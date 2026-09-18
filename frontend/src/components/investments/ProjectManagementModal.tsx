@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { CrowdfarmProject } from '@/types';
+import { FileUpload } from '@/components/common/FileUpload';
 import {
   X,
   Plus,
@@ -290,21 +291,13 @@ export const ProjectManagementModal: React.FC<ProjectManagementModalProps> = ({
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Project Cover Image URL
-            </label>
-            <div className="relative">
-              <ImageIcon className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="url"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="https://images.unsplash.com/..."
-                className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"
-              />
-            </div>
-          </div>
+          <FileUpload
+            label="Project Banner / Cover Image"
+            value={imageUrl}
+            onChange={(url) => setImageUrl(url)}
+            accept="image/*"
+            helperText="Upload project cover image from your computer (saved permanently on server)"
+          />
 
           <div>
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">

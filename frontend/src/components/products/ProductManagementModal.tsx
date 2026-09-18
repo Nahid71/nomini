@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { Product, Batch } from '@/types';
+import { FileUpload } from '@/components/common/FileUpload';
 import { X, Package, DollarSign, Layers, MapPin, Image as ImageIcon, AlertCircle } from 'lucide-react';
 
 interface ProductManagementModalProps {
@@ -255,18 +256,13 @@ export const ProductManagementModal: React.FC<ProductManagementModalProps> = ({
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Image URL (Unsplash or CDN)
-            </label>
-            <input
-              type="url"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://images.unsplash.com/photo-..."
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-forest-500 focus:outline-none"
-            />
-          </div>
+          <FileUpload
+            label="Product Image"
+            value={imageUrl}
+            onChange={(url) => setImageUrl(url)}
+            accept="image/*"
+            helperText="Upload product photo from your computer (saved permanently to server)"
+          />
 
           <div className="pt-4 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3">
             <button

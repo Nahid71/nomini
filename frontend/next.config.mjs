@@ -17,6 +17,10 @@ const nextConfig = {
         destination: `${process.env.BACKEND_INTERNAL_URL || 'http://localhost:4000'}/api/v1/:path*`,
       },
       {
+        source: '/uploads/:path*',
+        destination: `${process.env.BACKEND_INTERNAL_URL || 'http://localhost:4000'}/uploads/:path*`,
+      },
+      {
         source: '/api/docs/:path*',
         destination: `${process.env.BACKEND_INTERNAL_URL || 'http://localhost:4000'}/api/docs/:path*`,
       },

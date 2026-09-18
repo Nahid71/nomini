@@ -2,9 +2,19 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as express from 'express';
+import * as path from 'path';
+import * as fs from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Serve /uploads statically from server disk storage
+  const uploadsFolder = path.join(process.cwd(), 'uploads');
+  if (!fs.existsSync(uploadsFolder)) {
+    fs.mkdirSync(uploadsFolder, { recursive: true });
+  }
+  app.use('/uploads', express.static(uploadsFolder));
 
   // Enable CORS for Next.js frontend
   app.enableCors({

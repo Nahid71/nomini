@@ -9,6 +9,7 @@ import { DppModule } from './dpp/dpp.module';
 import { ProductsModule } from './products/products.module';
 import { UsersModule } from './users/users.module';
 import { TeamModule } from './team/team.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { TeamModule } from './team/team.module';
     ProductsModule,
     UsersModule,
     TeamModule,
+    UploadModule,
   ],
 })
 export class AppModule {}

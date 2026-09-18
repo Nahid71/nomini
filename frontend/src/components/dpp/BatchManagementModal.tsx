@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { Batch } from '@/types';
+import { FileUpload } from '@/components/common/FileUpload';
 import { X, QrCode, Plus, Calendar, MapPin, ShieldCheck, FileSpreadsheet, AlertCircle } from 'lucide-react';
 
 interface BatchManagementModalProps {
@@ -267,18 +268,13 @@ export const BatchManagementModal: React.FC<BatchManagementModalProps> = ({
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Lab Report URL / Signed PDF Link
-            </label>
-            <input
-              type="text"
-              value={labReportUrl}
-              onChange={(e) => setLabReportUrl(e.target.value)}
-              placeholder="https://nominigroup.com/reports/BATCH-NOM-2026-LAB.pdf"
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-forest-500 focus:outline-none"
-            />
-          </div>
+          <FileUpload
+            label="Lab Assay Report / Analysis Document"
+            value={labReportUrl}
+            onChange={(url) => setLabReportUrl(url)}
+            accept="image/*,application/pdf"
+            helperText="Upload official chemical assay PDF or laboratory report certificate from your computer"
+          />
 
           {/* Sustainability Scorecard Box */}
           <div className="p-4 rounded-2xl bg-forest-50/70 border border-forest-100 space-y-3">

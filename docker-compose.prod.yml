@@ -44,6 +44,8 @@ services:
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
     ports:
       - "127.0.0.1:4000:4000"
+    volumes:
+      - nomini_uploads:/app/uploads
     networks:
       - nomini-network
 
@@ -73,6 +75,8 @@ services:
 volumes:
   nomini_pgdata:
     name: nomini_prod_pgdata
+  nomini_uploads:
+    name: nomini_prod_uploads
 
 networks:
   nomini-network:

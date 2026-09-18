@@ -74,3 +74,4 @@ export class UpdateTeamMemberDto {
   @IsOptional()
   isFounder?: boolean;
 }
+

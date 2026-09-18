@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { TeamMember } from '@/types';
+import { FileUpload } from '@/components/common/FileUpload';
 import {
   X,
   UserCheck,
@@ -307,31 +308,20 @@ export const TeamMemberModal: React.FC<TeamMemberModalProps> = ({
             </div>
           </div>
 
-          {/* Avatar Image URL */}
+          {/* Photo Upload from Computer */}
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                Photo / Image URL
-              </label>
-              <span className="text-[10px] text-slate-400">
-                Relative path (/team/...) or web URL
-              </span>
-            </div>
-            <div className="relative">
-              <ImageIcon className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={avatar}
-                onChange={(e) => setAvatar(e.target.value)}
-                placeholder="/team/abu-bakar-siddique.jpeg"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:ring-2 focus:ring-forest-500 focus:outline-none"
-              />
-            </div>
+            <FileUpload
+              label="Profile Photo / Image"
+              value={avatar}
+              onChange={(url) => setAvatar(url)}
+              accept="image/*"
+              helperText="Upload member photo from your computer (stored permanently on server)"
+            />
 
             {/* Quick Presets */}
-            <div className="mt-2 flex flex-wrap gap-1.5 items-center">
-              <span className="text-[10px] font-bold text-slate-400">Quick select:</span>
-              {PRESET_AVATARS.slice(0, 5).map((preset) => (
+            <div className="mt-2.5 flex flex-wrap gap-1.5 items-center">
+              <span className="text-[10px] font-bold text-slate-400">Or use executive portrait:</span>
+              {PRESET_AVATARS.slice(0, 6).map((preset) => (
                 <button
                   key={preset.path}
                   type="button"

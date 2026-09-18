@@ -206,4 +206,43 @@ export const api = {
       method: 'PUT',
       body: JSON.stringify({ items }),
     }),
+
+  // File & Image Uploads (Stored on Server)
+  uploadFile: async (file: File): Promise<{
+    url: string;
+    filename: string;
+    originalName: string;
+    size: number;
+    mimetype: string;
+  }> => {
+    const token = useAuthStore.getState().token;
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const apiBase = getApiBase();
+    const url = `${apiBase}/api/v1/upload`;
+
+    const headers: HeadersInit = {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    if (!res.ok) {
+      let errorMessage = `Upload failed (${res.status})`;
+      try {
+        const errJson = await res.json();
+        errorMessage = errJson.message || errJson.error || errorMessage;
+      } catch {
+        // ignore
+      }
+      throw new Error(errorMessage);
+    }
+
+    return res.json();
+  },
 };
