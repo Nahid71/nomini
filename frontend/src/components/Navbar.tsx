@@ -53,21 +53,36 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
-      {/* Top micro bar with contact info from PDF */}
-      <div className="bg-forest-950 text-white text-[10px] sm:text-[11px] py-1 px-3 sm:px-8 flex flex-wrap items-center justify-between font-medium">
+      {/* Top announcement bar - 1.5 inches tall/wide */}
+      <div
+        style={{ minHeight: '1.5in' }}
+        className="bg-forest-950 text-white min-h-[1.5in] py-3 px-4 sm:px-8 flex flex-wrap items-center justify-between font-medium border-b border-forest-900 shadow-xs"
+      >
         <div className="flex items-center space-x-2 sm:space-x-3 truncate">
-          <span className="text-forest-400 font-bold truncate">NOMINI GROUP</span>
-          <span className="hidden sm:inline text-slate-400">•</span>
-          <span className="hidden sm:inline text-slate-300">Sustainable Growth. Better Future.</span>
-          <span className="hidden lg:inline text-slate-400">•</span>
-          <span className="hidden lg:inline text-slate-300">Fulbari, Dinajpur</span>
+          <span className="text-forest-400 font-black tracking-wide text-xs sm:text-sm uppercase bg-forest-900/80 px-2.5 py-1 rounded-md border border-forest-800/80">
+            NOMINI GROUP
+          </span>
+          <span className="hidden sm:inline text-slate-500">•</span>
+          <span className="hidden sm:inline text-slate-200 text-xs sm:text-sm font-semibold">
+            Sustainable Growth. Better Future.
+          </span>
+          <span className="hidden lg:inline text-slate-500">•</span>
+          <span className="hidden lg:inline text-slate-400 text-xs">
+            Fulbari, Dinajpur, Bangladesh
+          </span>
         </div>
-        <div className="flex items-center space-x-3 sm:space-x-4">
-          <a href="tel:+8801714864178" className="hover:text-forest-300 flex items-center gap-1 text-[10px] sm:text-xs">
-            <Phone className="w-3 h-3 text-forest-400 flex-shrink-0" />
-            <span className="font-bold">+880 1714-864178</span>
+        <div className="flex items-center space-x-3 sm:space-x-5">
+          <a
+            href="tel:+8801714864178"
+            className="hover:text-forest-300 flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-100 transition-colors"
+          >
+            <Phone className="w-3.5 h-3.5 text-forest-400 flex-shrink-0" />
+            <span>+880 1714-864178</span>
           </a>
-          <a href="mailto:info@nominigroup.com" className="hidden md:inline hover:text-forest-300 text-slate-300">
+          <a
+            href="mailto:info@nominigroup.com"
+            className="hidden md:inline hover:text-forest-300 text-xs sm:text-sm text-slate-300 transition-colors"
+          >
             info@nominigroup.com
           </a>
           <span className="hidden sm:inline text-slate-600">|</span>

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Nomini Group Digital Platform - Agritech, Crowdfarming, DPP & Operations",
   "scripts": {
+    "dev": "(cd backend && npm run start:dev) & (cd frontend && npm run dev)",
     "dev:backend": "cd backend && npm run start:dev",
     "dev:frontend": "cd frontend && npm run dev",
     "build:backend": "cd backend && npm run prisma:generate && npm run build",
