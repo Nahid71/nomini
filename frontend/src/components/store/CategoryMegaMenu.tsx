@@ -40,28 +40,113 @@ export const CategoryMegaMenu: React.FC<CategoryMegaMenuProps> = ({
   totalProductsCount,
 }) => {
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
   const [hoveredCategoryTabId, setHoveredCategoryTabId] = useState<string | null>(null);
-  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleMouseEnter = () => {
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = null;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const megaMenuCloseTimer = useRef<NodeJS.Timeout | null>(null);
+  const tabCloseTimer = useRef<NodeJS.Timeout | null>(null);
+
+  // Clear timers on unmount
+  useEffect(() => {
+    return () => {
+      if (megaMenuCloseTimer.current) clearTimeout(megaMenuCloseTimer.current);
+      if (tabCloseTimer.current) clearTimeout(tabCloseTimer.current);
+    };
+  }, []);
+
+  // Close when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsMegaMenuOpen(false);
+        setIsPinned(false);
+        setHoveredCategoryTabId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // ----------------------------------------------------
+  // Robust Hover Handlers for Mega Menu
+  // ----------------------------------------------------
+  const cancelMegaMenuClose = () => {
+    if (megaMenuCloseTimer.current) {
+      clearTimeout(megaMenuCloseTimer.current);
+      megaMenuCloseTimer.current = null;
     }
+  };
+
+  const handleMegaMenuTriggerEnter = () => {
+    cancelMegaMenuClose();
     setIsMegaMenuOpen(true);
   };
 
-  const handleMouseLeave = () => {
-    closeTimeoutRef.current = setTimeout(() => {
+  const handleMegaMenuTriggerLeave = () => {
+    if (isPinned) return;
+    cancelMegaMenuClose();
+    megaMenuCloseTimer.current = setTimeout(() => {
       setIsMegaMenuOpen(false);
-    }, 200);
+    }, 350); // 350ms grace period ensures it never vanishes mid-movement
   };
 
-  useEffect(() => {
-    return () => {
-      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
-    };
-  }, []);
+  const handleMegaMenuPanelEnter = () => {
+    cancelMegaMenuClose();
+    setIsMegaMenuOpen(true);
+  };
+
+  const handleMegaMenuPanelLeave = () => {
+    if (isPinned) return;
+    cancelMegaMenuClose();
+    megaMenuCloseTimer.current = setTimeout(() => {
+      setIsMegaMenuOpen(false);
+    }, 300);
+  };
+
+  const togglePinMegaMenu = () => {
+    cancelMegaMenuClose();
+    if (isMegaMenuOpen && isPinned) {
+      setIsMegaMenuOpen(false);
+      setIsPinned(false);
+    } else {
+      setIsMegaMenuOpen(true);
+      setIsPinned(true);
+    }
+  };
+
+  // ----------------------------------------------------
+  // Robust Hover Handlers for Individual Category Tabs
+  // ----------------------------------------------------
+  const cancelTabClose = () => {
+    if (tabCloseTimer.current) {
+      clearTimeout(tabCloseTimer.current);
+      tabCloseTimer.current = null;
+    }
+  };
+
+  const handleTabEnter = (catId: string) => {
+    cancelTabClose();
+    setHoveredCategoryTabId(catId);
+  };
+
+  const handleTabLeave = () => {
+    cancelTabClose();
+    tabCloseTimer.current = setTimeout(() => {
+      setHoveredCategoryTabId(null);
+    }, 300);
+  };
+
+  const handleTabDropdownEnter = () => {
+    cancelTabClose();
+  };
+
+  const handleTabDropdownLeave = () => {
+    cancelTabClose();
+    tabCloseTimer.current = setTimeout(() => {
+      setHoveredCategoryTabId(null);
+    }, 300);
+  };
 
   // Split categories into 4 vertical columns for the Amazon-style mega menu
   const numColumns = 4;
@@ -92,35 +177,40 @@ export const CategoryMegaMenu: React.FC<CategoryMegaMenuProps> = ({
       : null;
 
   return (
-    <div className="relative w-full z-30">
+    <div ref={containerRef} className="relative w-full z-30">
       {/* ---------------------------------------------------- */}
       {/* Amazon-Style Sub-Navigation Bar                      */}
       {/* ---------------------------------------------------- */}
-      <div className="bg-white border-y border-slate-200 shadow-xs">
+      <div className="bg-white border-y border-slate-200 shadow-xs relative z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <div className="flex items-center space-x-1 sm:space-x-3 overflow-x-auto no-scrollbar py-2 text-xs font-semibold text-slate-700">
             {/* Storefront Title */}
             <button
-              onClick={() => onSelectCategory('all')}
+              onClick={() => {
+                onSelectCategory('all');
+                setIsMegaMenuOpen(false);
+                setIsPinned(false);
+              }}
               className="font-extrabold text-sm sm:text-base text-slate-900 tracking-tight flex items-center gap-1.5 pr-2 sm:pr-4 border-r border-slate-200 flex-shrink-0 hover:text-emerald-700 transition-colors"
             >
               <span>Nomini Store</span>
             </button>
 
-            {/* "Categories ▾" Trigger with Hover Expansion */}
+            {/* "Categories ▾" Trigger with Hover Expansion & Click to Pin */}
             <div
               className="relative flex-shrink-0"
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
+              onMouseEnter={handleMegaMenuTriggerEnter}
+              onMouseLeave={handleMegaMenuTriggerLeave}
             >
               <button
                 type="button"
-                onClick={() => setIsMegaMenuOpen(!isMegaMenuOpen)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all font-bold ${
+                onClick={togglePinMegaMenu}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all font-bold select-none ${
                   isMegaMenuOpen
-                    ? 'text-emerald-700 bg-emerald-50 border border-emerald-200 shadow-xs'
+                    ? 'text-emerald-700 bg-emerald-50 border border-emerald-300 shadow-xs'
                     : 'text-slate-900 hover:text-emerald-700 hover:bg-slate-100'
                 }`}
+                title="Hover or click to view all categories & sub-categories"
               >
                 <span>Categories</span>
                 {isMegaMenuOpen ? (
@@ -134,51 +224,69 @@ export const CategoryMegaMenu: React.FC<CategoryMegaMenuProps> = ({
             {/* Quick Access Category Tabs on the Bar */}
             {categories.slice(0, 5).map((cat) => {
               const isActive = activeCategory?.id === cat.id;
+              const isTabHovered = hoveredCategoryTabId === cat.id;
+
               return (
                 <div
                   key={cat.id}
-                  className="relative group flex-shrink-0"
-                  onMouseEnter={() => setHoveredCategoryTabId(cat.id)}
-                  onMouseLeave={() => setHoveredCategoryTabId(null)}
+                  className="relative flex-shrink-0"
+                  onMouseEnter={() => handleTabEnter(cat.id)}
+                  onMouseLeave={handleTabLeave}
                 >
                   <button
-                    onClick={() => onSelectCategory(cat.slug)}
+                    onClick={() => {
+                      onSelectCategory(cat.slug);
+                      setHoveredCategoryTabId(null);
+                    }}
                     className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg transition-all whitespace-nowrap ${
                       isActive
                         ? 'text-emerald-800 bg-emerald-50 font-bold border border-emerald-200'
+                        : isTabHovered
+                        ? 'text-slate-900 bg-slate-100 font-bold'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                     }`}
                   >
                     <span>{cat.name}</span>
                     {cat.subCategories.length > 0 && (
-                      <ChevronDown className="w-3 h-3 text-slate-400 group-hover:text-slate-600" />
+                      <ChevronDown
+                        className={`w-3 h-3 transition-transform ${
+                          isTabHovered ? 'rotate-180 text-emerald-600' : 'text-slate-400'
+                        }`}
+                      />
                     )}
                   </button>
 
-                  {/* Individual Mini-Dropdown on Tab Hover */}
-                  {hoveredCategoryTabId === cat.id && cat.subCategories.length > 0 && (
-                    <div className="absolute top-full left-0 mt-1 w-56 bg-white border border-slate-200 rounded-xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-1">
-                      <div className="px-3 py-1.5 border-b border-slate-100 flex items-center justify-between">
-                        <span className="text-[11px] font-bold text-slate-900 truncate">
-                          {cat.name}
-                        </span>
-                        <span className="text-[10px] text-slate-400 font-mono">
-                          {cat.subCategories.length} subs
-                        </span>
-                      </div>
-                      <div className="max-h-60 overflow-y-auto py-1">
-                        {cat.subCategories.map((sub) => (
-                          <button
-                            key={sub.id}
-                            onClick={() => {
-                              onSelectSubCategory(cat.slug, sub.slug);
-                              setHoveredCategoryTabId(null);
-                            }}
-                            className="w-full text-left px-3 py-1.5 text-xs text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors block truncate"
-                          >
-                            {sub.name}
-                          </button>
-                        ))}
+                  {/* Individual Mini-Dropdown with Invisible Hover Bridge */}
+                  {isTabHovered && cat.subCategories.length > 0 && (
+                    <div
+                      className="absolute top-full left-0 pt-2 w-60 z-50 animate-in fade-in slide-in-from-top-1"
+                      onMouseEnter={handleTabDropdownEnter}
+                      onMouseLeave={handleTabDropdownLeave}
+                    >
+                      {/* Invisible buffer bridge between button and dropdown */}
+                      <div className="bg-white border border-slate-200 rounded-xl shadow-2xl py-2 overflow-hidden border-t-2 border-t-emerald-600">
+                        <div className="px-3.5 py-2 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                          <span className="text-xs font-bold text-slate-900 truncate">
+                            {cat.name}
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-mono px-1.5 py-0.5 rounded bg-white border border-slate-200">
+                            {cat.subCategories.length}
+                          </span>
+                        </div>
+                        <div className="max-h-64 overflow-y-auto py-1 divide-y divide-slate-50">
+                          {cat.subCategories.map((sub) => (
+                            <button
+                              key={sub.id}
+                              onClick={() => {
+                                onSelectSubCategory(cat.slug, sub.slug);
+                                setHoveredCategoryTabId(null);
+                              }}
+                              className="w-full text-left px-3.5 py-2 text-xs text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 hover:font-semibold transition-colors block truncate"
+                            >
+                              {sub.name}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -205,32 +313,47 @@ export const CategoryMegaMenu: React.FC<CategoryMegaMenuProps> = ({
       {/* Mega Menu Dropdown (Expands on Hover over Categories) */}
       {/* ---------------------------------------------------- */}
       {isMegaMenuOpen && (
-        <>
+        <div
+          className="absolute left-0 right-0 top-full z-40"
+          onMouseEnter={handleMegaMenuPanelEnter}
+          onMouseLeave={handleMegaMenuPanelLeave}
+        >
+          {/* Invisible overlap bridge ensuring cursor never falls through */}
+          <div className="absolute -top-3 left-0 right-0 h-4 bg-transparent pointer-events-auto" />
+
           {/* Backdrop Shadow Overlay */}
           <div
-            className="fixed inset-0 top-[140px] bg-black/25 backdrop-blur-[1px] z-30 transition-opacity"
-            onClick={() => setIsMegaMenuOpen(false)}
+            className="fixed inset-0 top-[135px] bg-black/30 backdrop-blur-[1px] -z-10 transition-opacity"
+            onClick={() => {
+              setIsMegaMenuOpen(false);
+              setIsPinned(false);
+            }}
           />
 
-          <div
-            className="absolute left-0 right-0 top-full bg-white border-b-2 border-slate-300 shadow-2xl rounded-b-2xl z-40 animate-in fade-in slide-in-from-top-2 duration-200"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
+          {/* Mega Menu Panel Card */}
+          <div className="bg-white border-b-2 border-slate-300 shadow-2xl rounded-b-2xl animate-in fade-in slide-in-from-top-1 duration-150">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
               <div className="flex flex-col lg:flex-row gap-6">
                 {/* 1. Left Column: "Featured" Action Buttons (Amazon Style) */}
                 <div className="w-full lg:w-56 flex-shrink-0 space-y-3 border-b lg:border-b-0 lg:border-r border-slate-200 lg:pr-6 pb-4 lg:pb-0">
-                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                    Featured
-                  </h4>
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                      Featured
+                    </h4>
+                    {isPinned && (
+                      <span className="text-[10px] text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">
+                        Pinned
+                      </span>
+                    )}
+                  </div>
 
                   <div className="space-y-2">
                     <button
                       onClick={() => {
                         onSelectCategory('all');
                         setIsMegaMenuOpen(false);
+                        setIsPinned(false);
                       }}
                       className={`w-full text-left px-3.5 py-2 rounded-xl text-xs font-bold border transition-all flex items-center justify-between ${
                         activeCategorySlug === 'all'
@@ -251,6 +374,7 @@ export const CategoryMegaMenu: React.FC<CategoryMegaMenuProps> = ({
                       onClick={() => {
                         onSelectCategory('organic-spices');
                         setIsMegaMenuOpen(false);
+                        setIsPinned(false);
                       }}
                       className="w-full text-left px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 transition-all flex items-center justify-between"
                     >
@@ -265,6 +389,7 @@ export const CategoryMegaMenu: React.FC<CategoryMegaMenuProps> = ({
                       onClick={() => {
                         onSelectCategory('seafood-aquaculture');
                         setIsMegaMenuOpen(false);
+                        setIsPinned(false);
                       }}
                       className="w-full text-left px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 transition-all flex items-center justify-between"
                     >
@@ -279,6 +404,7 @@ export const CategoryMegaMenu: React.FC<CategoryMegaMenuProps> = ({
                       onClick={() => {
                         onSelectCategory('gourmet-oils-botanicals');
                         setIsMegaMenuOpen(false);
+                        setIsPinned(false);
                       }}
                       className="w-full text-left px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 transition-all flex items-center justify-between"
                     >
@@ -293,6 +419,7 @@ export const CategoryMegaMenu: React.FC<CategoryMegaMenuProps> = ({
                       onClick={() => {
                         onSelectCategory('renewable-bio-energy-soil');
                         setIsMegaMenuOpen(false);
+                        setIsPinned(false);
                       }}
                       className="w-full text-left px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 transition-all flex items-center justify-between"
                     >
@@ -309,6 +436,7 @@ export const CategoryMegaMenu: React.FC<CategoryMegaMenuProps> = ({
                       <button
                         onClick={() => {
                           setIsMegaMenuOpen(false);
+                          setIsPinned(false);
                           onOpenCategoryManager();
                         }}
                         className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors flex items-center gap-1.5"
@@ -331,6 +459,7 @@ export const CategoryMegaMenu: React.FC<CategoryMegaMenuProps> = ({
                             onClick={() => {
                               onSelectCategory(cat.slug);
                               setIsMegaMenuOpen(false);
+                              setIsPinned(false);
                             }}
                             className="group flex items-center justify-between w-full text-left"
                           >
@@ -355,6 +484,7 @@ export const CategoryMegaMenu: React.FC<CategoryMegaMenuProps> = ({
                                     onClick={() => {
                                       onSelectSubCategory(cat.slug, sub.slug);
                                       setIsMegaMenuOpen(false);
+                                      setIsPinned(false);
                                     }}
                                     className={`text-xs text-left w-full block py-0.5 transition-all truncate ${
                                       isSubSelected
@@ -376,7 +506,7 @@ export const CategoryMegaMenu: React.FC<CategoryMegaMenuProps> = ({
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
 
       {/* ---------------------------------------------------- */}
