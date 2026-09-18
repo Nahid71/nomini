@@ -199,6 +199,9 @@ export default function AboutCorporatePage() {
     },
   ];
 
+  const founder = executiveTeam[0];
+  const teamMembers = executiveTeam.slice(1);
+
   return (
     <div className="space-y-16 pb-16">
       {/* Hero Section with Official Logo & Slogan */}
@@ -534,20 +537,54 @@ export default function AboutCorporatePage() {
 
       {/* Leadership Team from Files */}
       <section className="space-y-8">
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <span className="text-xs font-black uppercase tracking-wider text-forest-700 bg-forest-100 px-3.5 py-1 rounded-full border border-forest-200">
-            Executive Leadership & Management Team
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            The Team of Nomini Group
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500">
-            Visionary founders, seasoned directors, and operations leads driving South Asia’s sustainable agro-industrial revolution.
-          </p>
+        {/* Header Row: Founder Card in the Red Marked Place + Section Heading */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 sm:gap-6 items-center">
+          {/* Founder Card - Moved to Red Marked Position (Row 0, Col 1) */}
+          <div className="bg-white rounded-3xl p-5 border-2 border-forest-200 shadow-md text-center space-y-4 hover:shadow-xl hover:border-forest-400 transition-all duration-300 flex flex-col justify-between group">
+            <div className="space-y-3.5">
+              <div className="relative mx-auto w-24 h-24 sm:w-28 sm:h-28">
+                <img
+                  src={founder.avatar}
+                  alt={`${founder.name} - ${founder.role}`}
+                  className="w-full h-full rounded-2xl object-cover object-top border-2 border-forest-300 group-hover:border-forest-500 shadow-md group-hover:scale-105 transition-all duration-300 bg-slate-100"
+                />
+                <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-forest-800 text-white shadow-sm whitespace-nowrap">
+                  {founder.badge}
+                </span>
+              </div>
+              <div className="pt-1 space-y-1">
+                <h4 className="text-sm sm:text-base font-black text-slate-900 leading-snug group-hover:text-forest-700 transition-colors">
+                  {founder.name}
+                </h4>
+                <p className="text-xs font-bold text-forest-700 leading-snug">
+                  {founder.role}
+                </p>
+              </div>
+            </div>
+            <div className="pt-3 border-t border-slate-100">
+              <span className="text-[10px] font-semibold text-slate-400 block truncate">
+                {founder.dept}
+              </span>
+            </div>
+          </div>
+
+          {/* Section Title & Description beside Founder Card */}
+          <div className="lg:col-span-3 text-center lg:text-left space-y-3 lg:pl-4">
+            <span className="inline-block text-xs font-black uppercase tracking-wider text-forest-700 bg-forest-100 px-3.5 py-1 rounded-full border border-forest-200">
+              Executive Leadership & Management Team
+            </span>
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">
+              The Team of Nomini Group
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 max-w-2xl leading-relaxed">
+              Visionary founders, seasoned directors, and operations leads driving South Asia’s sustainable agro-industrial revolution.
+            </p>
+          </div>
         </div>
 
+        {/* Executive Management Team Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6">
-          {executiveTeam.map((member, idx) => (
+          {teamMembers.map((member, idx) => (
             <div
               key={idx}
               className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-xs text-center space-y-4 hover:shadow-xl hover:border-forest-300 transition-all duration-300 flex flex-col justify-between group"
