@@ -1,5 +1,5 @@
 import { useAuthStore } from './store/authStore';
-import { TeamMember } from '@/types';
+import { TeamMember, Category, SubCategory } from '@/types';
 
 function getApiBase() {
   if (process.env.NEXT_PUBLIC_API_URL) {
@@ -245,4 +245,36 @@ export const api = {
 
     return res.json();
   },
+
+  // Categories & SubCategories
+  getCategories: (): Promise<Category[]> => apiRequest('/api/v1/categories'),
+  getCategory: (id: string): Promise<Category> => apiRequest(`/api/v1/categories/${id}`),
+  createCategory: (data: { name: string; description?: string; order?: number; slug?: string }): Promise<Category> =>
+    apiRequest('/api/v1/categories', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  updateCategory: (id: string, data: { name?: string; description?: string; order?: number; slug?: string }): Promise<Category> =>
+    apiRequest(`/api/v1/categories/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+  deleteCategory: (id: string): Promise<any> =>
+    apiRequest(`/api/v1/categories/${id}`, {
+      method: 'DELETE',
+    }),
+  createSubCategory: (categoryId: string, data: { name: string; description?: string; order?: number; slug?: string }): Promise<SubCategory> =>
+    apiRequest(`/api/v1/categories/${categoryId}/subcategories`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  updateSubCategory: (id: string, data: { name?: string; description?: string; order?: number; slug?: string }): Promise<SubCategory> =>
+    apiRequest(`/api/v1/categories/subcategories/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+  deleteSubCategory: (id: string): Promise<any> =>
+    apiRequest(`/api/v1/categories/subcategories/${id}`, {
+      method: 'DELETE',
+    }),
 };

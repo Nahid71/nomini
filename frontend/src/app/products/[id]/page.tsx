@@ -142,6 +142,14 @@ export default function ProductDetailPage() {
           </Link>
           <span>/</span>
           <span className="text-slate-400 truncate">{product.category || 'Harvest'}</span>
+          {product.subCategoryName && (
+            <>
+              <span>/</span>
+              <span className="text-emerald-700 font-semibold truncate">
+                {product.subCategoryName}
+              </span>
+            </>
+          )}
           <span>/</span>
           <span className="text-slate-900 font-bold truncate max-w-[200px] sm:max-w-none">
             {product.title}
@@ -193,14 +201,19 @@ export default function ProductDetailPage() {
               className="w-full h-full object-cover object-center"
             />
 
-            {/* Category Pill */}
-            {product.category && (
-              <div className="absolute top-4 left-4">
+            {/* Category & Sub-Category Pills */}
+            <div className="absolute top-4 left-4 flex flex-wrap gap-1.5 max-w-[75%]">
+              {product.category && (
                 <span className="px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider bg-slate-900/80 backdrop-blur-md text-white shadow-md">
                   {product.category}
                 </span>
-              </div>
-            )}
+              )}
+              {product.subCategoryName && (
+                <span className="px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-600/90 backdrop-blur-md text-white shadow-md">
+                  {product.subCategoryName}
+                </span>
+              )}
+            </div>
 
             {/* DPP Passport Badge */}
             {product.batch && (

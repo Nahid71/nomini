@@ -31,6 +31,21 @@ export class CreateProductDto {
   @IsString()
   category?: string;
 
+  @ApiPropertyOptional({ example: 'cat-uuid-here' })
+  @IsOptional()
+  @IsString()
+  categoryId?: string;
+
+  @ApiPropertyOptional({ example: 'subcat-uuid-here' })
+  @IsOptional()
+  @IsString()
+  subCategoryId?: string;
+
+  @ApiPropertyOptional({ example: 'Black Pepper' })
+  @IsOptional()
+  @IsString()
+  subCategoryName?: string;
+
   @ApiPropertyOptional({ example: 'NOM-SPICE-PEP-250G' })
   @IsOptional()
   @IsString()

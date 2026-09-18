@@ -9,6 +9,8 @@ export class ProductsService {
   async findAll() {
     return this.prisma.product.findMany({
       include: {
+        categoryRef: true,
+        subCategory: true,
         batch: {
           select: {
             id: true,
@@ -27,6 +29,8 @@ export class ProductsService {
     const product = await this.prisma.product.findUnique({
       where: { id },
       include: {
+        categoryRef: true,
+        subCategory: true,
         batch: true,
       },
     });
@@ -52,6 +56,23 @@ export class ProductsService {
       }
     }
 
+    let categoryName = dto.category;
+    let subCategoryName = dto.subCategoryName;
+
+    if (dto.categoryId) {
+      const cat = await this.prisma.category.findUnique({ where: { id: dto.categoryId } });
+      if (cat) {
+        categoryName = cat.name;
+      }
+    }
+
+    if (dto.subCategoryId) {
+      const subCat = await this.prisma.subCategory.findUnique({ where: { id: dto.subCategoryId } });
+      if (subCat) {
+        subCategoryName = subCat.name;
+      }
+    }
+
     return this.prisma.product.create({
       data: {
         title: dto.title,
@@ -59,12 +80,17 @@ export class ProductsService {
         priceUSD: dto.priceUSD,
         stockQty: dto.stockQty,
         imageUrl: dto.imageUrl,
-        category: dto.category,
+        category: categoryName,
+        subCategoryName: subCategoryName,
+        categoryId: dto.categoryId,
+        subCategoryId: dto.subCategoryId,
         sku: dto.sku || `SKU-NOM-${Date.now().toString(36).toUpperCase()}`,
         originFarm: dto.originFarm,
         batchId: resolvedBatchId,
       },
       include: {
+        categoryRef: true,
+        subCategory: true,
         batch: true,
       },
     });
@@ -88,6 +114,23 @@ export class ProductsService {
       }
     }
 
+    let categoryName = dto.category;
+    let subCategoryName = dto.subCategoryName;
+
+    if (dto.categoryId) {
+      const cat = await this.prisma.category.findUnique({ where: { id: dto.categoryId } });
+      if (cat) {
+        categoryName = cat.name;
+      }
+    }
+
+    if (dto.subCategoryId) {
+      const subCat = await this.prisma.subCategory.findUnique({ where: { id: dto.subCategoryId } });
+      if (subCat) {
+        subCategoryName = subCat.name;
+      }
+    }
+
     return this.prisma.product.update({
       where: { id },
       data: {
@@ -96,12 +139,17 @@ export class ProductsService {
         ...(dto.priceUSD !== undefined && { priceUSD: dto.priceUSD }),
         ...(dto.stockQty !== undefined && { stockQty: dto.stockQty }),
         ...(dto.imageUrl !== undefined && { imageUrl: dto.imageUrl }),
-        ...(dto.category !== undefined && { category: dto.category }),
+        ...(categoryName !== undefined && { category: categoryName }),
+        ...(subCategoryName !== undefined && { subCategoryName }),
+        ...(dto.categoryId !== undefined && { categoryId: dto.categoryId }),
+        ...(dto.subCategoryId !== undefined && { subCategoryId: dto.subCategoryId }),
         ...(dto.sku !== undefined && { sku: dto.sku }),
         ...(dto.originFarm !== undefined && { originFarm: dto.originFarm }),
         ...(resolvedBatchId !== undefined && { batchId: resolvedBatchId }),
       },
       include: {
+        categoryRef: true,
+        subCategory: true,
         batch: true,
       },
     });

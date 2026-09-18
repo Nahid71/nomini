@@ -77,6 +77,32 @@ export interface Batch {
   product?: Product;
 }
 
+export interface SubCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  order: number;
+  categoryId: string;
+  category?: Category;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string | null;
+  order: number;
+  subCategories: SubCategory[];
+  _count?: {
+    products: number;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface Product {
   id: string;
   title: string;
@@ -85,6 +111,11 @@ export interface Product {
   stockQty: number;
   imageUrl?: string;
   category?: string;
+  subCategoryName?: string;
+  categoryId?: string;
+  subCategoryId?: string;
+  categoryRef?: Category;
+  subCategory?: SubCategory;
   sku?: string;
   originFarm?: string;
   batchId?: string;
