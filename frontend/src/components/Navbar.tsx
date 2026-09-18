@@ -21,6 +21,8 @@ import {
   User,
   LogOut,
   ChevronRight,
+  Facebook,
+  Youtube,
 } from 'lucide-react';
 import nominiEmblem from '@/assets/nomini-emblem.png';
 
@@ -85,8 +87,30 @@ export const Navbar: React.FC = () => {
           >
             info@nominigroup.com
           </a>
-          <span className="hidden sm:inline text-slate-600">|</span>
-          <GoogleTranslate variant="micro" />
+
+          {/* Social Media Links */}
+          <div className="flex items-center space-x-2 pl-2 border-l border-forest-800">
+            <a
+              href="https://www.facebook.com/share/1DTpgwW64b/?mibextid=wwXIfr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-7 h-7 rounded-full bg-forest-900 hover:bg-[#1877F2] text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 shadow-xs group"
+              title="Visit Nomini Group on Facebook"
+              aria-label="Facebook Page"
+            >
+              <Facebook className="w-3.5 h-3.5 fill-current" />
+            </a>
+            <a
+              href="https://youtube.com/@sawariteam?si=V5_Ri9xuQOIKYX1-"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-7 h-7 rounded-full bg-forest-900 hover:bg-[#FF0000] text-slate-300 hover:text-white flex items-center justify-center transition-all duration-200 shadow-xs group"
+              title="Visit Nomini Group on YouTube"
+              aria-label="YouTube Channel"
+            >
+              <Youtube className="w-3.5 h-3.5 fill-current" />
+            </a>
+          </div>
         </div>
       </div>
 
