@@ -1,4 +1,5 @@
 import { useAuthStore } from './store/authStore';
+import { TeamMember } from '@/types';
 
 function getApiBase() {
   if (process.env.NEXT_PUBLIC_API_URL) {
@@ -181,5 +182,28 @@ export const api = {
     apiRequest('/api/v1/investments/financial-plan', {
       method: 'PUT',
       body: JSON.stringify(data),
+    }),
+
+  // Team
+  getTeamMembers: (): Promise<TeamMember[]> => apiRequest('/api/v1/team'),
+  getTeamMember: (id: string): Promise<TeamMember> => apiRequest(`/api/v1/team/${id}`),
+  createTeamMember: (data: Partial<TeamMember>): Promise<TeamMember> =>
+    apiRequest('/api/v1/team', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  updateTeamMember: (id: string, data: Partial<TeamMember>): Promise<TeamMember> =>
+    apiRequest(`/api/v1/team/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+  deleteTeamMember: (id: string): Promise<any> =>
+    apiRequest(`/api/v1/team/${id}`, {
+      method: 'DELETE',
+    }),
+  reorderTeamMembers: (items: { id: string; order: number }[]): Promise<any> =>
+    apiRequest('/api/v1/team/reorder', {
+      method: 'PUT',
+      body: JSON.stringify({ items }),
     }),
 };

@@ -206,3 +206,23 @@ model OrderItem {
 
   @@map("order_items")
 }
+
+// ----------------------------------------------------
+// Section 2.5: Team Leadership & Executive Roster Schema
+// ----------------------------------------------------
+
+model TeamMember {
+  id          String   @id @default(uuid())
+  name        String
+  role        String   // Title / Designation
+  dept        String?  // Department / Scope
+  avatar      String   // Image URL or static path
+  badge       String?  // Badge label (e.g. Founder, Executive Board, Finance, etc.)
+  order       Int      @default(0) // Position sort order (0, 1, 2...)
+  isFounder   Boolean  @default(false) // Positioned in the featured top spot
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("team_members")
+}

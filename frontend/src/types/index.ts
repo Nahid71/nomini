@@ -155,3 +155,17 @@ export interface OrderConfirmation {
     productTitle: string;
   }[];
 }
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  dept?: string | null;
+  avatar?: string | null;
+  badge?: string | null;
+  order: number;
+  isFounder: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+

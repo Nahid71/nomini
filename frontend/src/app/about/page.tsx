@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import nominiEmblem from '@/assets/nomini-emblem.png';
 import { useAuthStore } from '@/lib/store/authStore';
+import { api } from '@/lib/api';
+import { TeamMember } from '@/types';
+import { TeamMemberModal } from '@/components/admin/TeamMemberModal';
 import {
   Kanban,
   QrCode,
@@ -28,10 +31,12 @@ import {
   Target,
   Quote,
   Lock,
+  Pencil,
+  Plus,
 } from 'lucide-react';
 
 export default function AboutCorporatePage() {
-  const { currentUser, isStaff, initAuth } = useAuthStore();
+  const { currentUser, isStaff, isAdmin, initAuth } = useAuthStore();
 
   useEffect(() => {
     initAuth();
@@ -119,88 +124,140 @@ export default function AboutCorporatePage() {
     },
   ];
 
-  const executiveTeam = [
+  const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
     {
+      id: 'default-0',
       name: 'Abu Bakar Siddique',
       role: 'Founder of Nomini Group',
       dept: 'Founder & Strategic Vision',
       avatar: '/team/abu-bakar-siddique.jpeg',
       badge: 'Founder',
+      order: 0,
+      isFounder: true,
     },
     {
+      id: 'default-1',
       name: 'Md. Abdul Wares',
       role: 'President, CEO',
       dept: 'Executive Leadership & Operations',
       avatar: '/team/md-abdul-wares.jpeg',
       badge: 'Executive Board',
+      order: 1,
+      isFounder: false,
     },
     {
+      id: 'default-2',
       name: 'MD. Shahadat Hossain',
       role: 'Vice President Finance',
       dept: 'Corporate Finance & Accounts',
       avatar: '/team/md-shahadat-hossain.jpeg',
       badge: 'Finance',
+      order: 2,
+      isFounder: false,
     },
     {
+      id: 'default-3',
       name: 'MD. Anwar Hossain',
       role: 'Vice President Sales & Marketing',
       dept: 'Sales & Market Development',
       avatar: '/team/md-anwar-hossain.jpeg',
       badge: 'Commercial',
+      order: 3,
+      isFounder: false,
     },
     {
+      id: 'default-4',
       name: 'Mynul Hassan',
       role: 'Vice President Sales',
       dept: 'Commercial & Distribution Sales',
       avatar: '/team/mynul-hassan.jpeg',
       badge: 'Sales',
+      order: 4,
+      isFounder: false,
     },
     {
+      id: 'default-5',
       name: 'Md. Milon Sheikh',
       role: '1st Vice President (Sourcing)',
       dept: 'Procurement & Strategic Sourcing',
       avatar: '/team/md-milon-sheikh.jpeg',
       badge: 'Sourcing',
+      order: 5,
+      isFounder: false,
     },
     {
+      id: 'default-6',
       name: 'Rakibul Islam Sourov',
       role: 'Director Sourcing',
       dept: 'Supply Chain & Sourcing Strategy',
       avatar: '/team/rakibul-islam-sourov.jpeg',
       badge: 'Supply Chain',
+      order: 6,
+      isFounder: false,
     },
     {
+      id: 'default-7',
       name: 'Sandip Kumar Roy',
       role: 'Director & Manager',
       dept: 'Administration & Corporate Affairs',
       avatar: '/team/sandip-kumar-roy.jpeg',
       badge: 'Administration',
+      order: 7,
+      isFounder: false,
     },
     {
+      id: 'default-8',
       name: 'Sakib Hasan Plabon',
       role: 'HR, Admin, Compliance & Sales Manager',
       dept: 'Human Resources & Regulatory Compliance',
       avatar: '/team/sakib-hasan-plabon.jpeg',
       badge: 'HR & Compliance',
+      order: 8,
+      isFounder: false,
     },
     {
+      id: 'default-9',
       name: 'Md. Eliyas Ali Sumon',
       role: 'Medical Assistant & IT Manager',
       dept: 'Health, Safety & IT Systems',
       avatar: '/team/md-eliyas-ali-sumon.jpeg',
       badge: 'IT & Medical',
+      order: 9,
+      isFounder: false,
     },
     {
+      id: 'default-10',
       name: 'Md. Alamin',
       role: 'Supervisor',
       dept: 'Field Operations & Plot Supervision',
       avatar: '/team/md-alamin.jpeg',
       badge: 'Operations',
+      order: 10,
+      isFounder: false,
     },
   ];
 
-  const founder = executiveTeam[0];
-  const teamMembers = executiveTeam.slice(1);
+  const [teamList, setTeamList] = useState<TeamMember[]>(DEFAULT_TEAM_MEMBERS);
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const [memberToEdit, setMemberToEdit] = useState<TeamMember | null>(null);
+
+  const loadTeamMembers = async () => {
+    try {
+      const data = await api.getTeamMembers();
+      if (Array.isArray(data) && data.length > 0) {
+        setTeamList(data);
+      }
+    } catch (err) {
+      console.error('Failed to load team members:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadTeamMembers();
+  }, []);
+
+  const founder = teamList.find((m) => m.isFounder) || teamList[0];
+  const teamMembers = teamList.filter((m) => (founder ? m.id !== founder.id : true));
 
   return (
     <div className="space-y-16 pb-16">
@@ -540,39 +597,79 @@ export default function AboutCorporatePage() {
         {/* Header Row: Founder Card in the Red Marked Place + Section Heading */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-5 sm:gap-6 items-center">
           {/* Founder Card - Moved to Red Marked Position (Row 0, Col 1) */}
-          <div className="bg-white rounded-3xl p-5 border-2 border-forest-200 shadow-md text-center space-y-4 hover:shadow-xl hover:border-forest-400 transition-all duration-300 flex flex-col justify-between group">
-            <div className="space-y-3.5">
-              <div className="relative mx-auto w-24 h-24 sm:w-28 sm:h-28">
-                <img
-                  src={founder.avatar}
-                  alt={`${founder.name} - ${founder.role}`}
-                  className="w-full h-full rounded-2xl object-cover object-top border-2 border-forest-300 group-hover:border-forest-500 shadow-md group-hover:scale-105 transition-all duration-300 bg-slate-100"
-                />
-                <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-forest-800 text-white shadow-sm whitespace-nowrap">
-                  {founder.badge}
+          {founder && (
+            <div className="relative bg-white rounded-3xl p-5 border-2 border-forest-200 shadow-md text-center space-y-4 hover:shadow-xl hover:border-forest-400 transition-all duration-300 flex flex-col justify-between group">
+              {isAdmin() && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMemberToEdit(founder);
+                    setIsTeamModalOpen(true);
+                  }}
+                  className="absolute top-3.5 right-3.5 p-2 rounded-xl bg-forest-50 hover:bg-forest-100 text-forest-700 border border-forest-200 shadow-xs transition-all hover:scale-110 z-10 flex items-center gap-1 text-[11px] font-bold"
+                  title="Edit Founder tile"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Edit</span>
+                </button>
+              )}
+
+              <div className="space-y-3.5">
+                <div className="relative mx-auto w-24 h-24 sm:w-28 sm:h-28">
+                  {founder.avatar ? (
+                    <img
+                      src={founder.avatar}
+                      alt={`${founder.name} - ${founder.role}`}
+                      className="w-full h-full rounded-2xl object-cover object-top border-2 border-forest-300 group-hover:border-forest-500 shadow-md group-hover:scale-105 transition-all duration-300 bg-slate-100"
+                    />
+                  ) : (
+                    <div className="w-full h-full rounded-2xl bg-forest-100 text-forest-700 flex items-center justify-center font-black text-xl border-2 border-forest-300">
+                      {founder.name.substring(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                  {founder.badge && (
+                    <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-forest-800 text-white shadow-sm whitespace-nowrap">
+                      {founder.badge}
+                    </span>
+                  )}
+                </div>
+                <div className="pt-1 space-y-1">
+                  <h4 className="text-sm sm:text-base font-black text-slate-900 leading-snug group-hover:text-forest-700 transition-colors">
+                    {founder.name}
+                  </h4>
+                  <p className="text-xs font-bold text-forest-700 leading-snug">
+                    {founder.role}
+                  </p>
+                </div>
+              </div>
+              <div className="pt-3 border-t border-slate-100">
+                <span className="text-[10px] font-semibold text-slate-400 block truncate">
+                  {founder.dept || 'Strategic Leadership'}
                 </span>
               </div>
-              <div className="pt-1 space-y-1">
-                <h4 className="text-sm sm:text-base font-black text-slate-900 leading-snug group-hover:text-forest-700 transition-colors">
-                  {founder.name}
-                </h4>
-                <p className="text-xs font-bold text-forest-700 leading-snug">
-                  {founder.role}
-                </p>
-              </div>
             </div>
-            <div className="pt-3 border-t border-slate-100">
-              <span className="text-[10px] font-semibold text-slate-400 block truncate">
-                {founder.dept}
-              </span>
-            </div>
-          </div>
+          )}
 
           {/* Section Title & Description beside Founder Card */}
           <div className="lg:col-span-3 text-center lg:text-left space-y-3 lg:pl-4">
-            <span className="inline-block text-xs font-black uppercase tracking-wider text-forest-700 bg-forest-100 px-3.5 py-1 rounded-full border border-forest-200">
-              Executive Leadership & Management Team
-            </span>
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5">
+              <span className="inline-block text-xs font-black uppercase tracking-wider text-forest-700 bg-forest-100 px-3.5 py-1 rounded-full border border-forest-200">
+                Executive Leadership & Management Team
+              </span>
+              {isAdmin() && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMemberToEdit(null);
+                    setIsTeamModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-forest-600 hover:bg-forest-700 text-white shadow-sm transition-all hover:scale-105"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Team Member</span>
+                </button>
+              )}
+            </div>
             <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">
               The Team of Nomini Group
             </h2>
@@ -586,17 +683,38 @@ export default function AboutCorporatePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6">
           {teamMembers.map((member, idx) => (
             <div
-              key={idx}
-              className="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-xs text-center space-y-4 hover:shadow-xl hover:border-forest-300 transition-all duration-300 flex flex-col justify-between group"
+              key={member.id || idx}
+              className="relative bg-white rounded-3xl p-5 border border-slate-200/90 shadow-xs text-center space-y-4 hover:shadow-xl hover:border-forest-300 transition-all duration-300 flex flex-col justify-between group"
             >
+              {isAdmin() && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMemberToEdit(member);
+                    setIsTeamModalOpen(true);
+                  }}
+                  className="absolute top-3.5 right-3.5 p-1.5 rounded-lg bg-slate-50 hover:bg-forest-50 text-slate-400 hover:text-forest-700 border border-slate-200 shadow-xs transition-all hover:scale-110 z-10 flex items-center gap-1 text-[10px] font-bold"
+                  title="Edit team member"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Edit</span>
+                </button>
+              )}
+
               <div className="space-y-3.5">
                 {/* Photo with subtle badge */}
                 <div className="relative mx-auto w-24 h-24 sm:w-28 sm:h-28">
-                  <img
-                    src={member.avatar}
-                    alt={`${member.name} - ${member.role}`}
-                    className="w-full h-full rounded-2xl object-cover object-top border-2 border-slate-200 group-hover:border-forest-500 shadow-md group-hover:scale-105 transition-all duration-300 bg-slate-100"
-                  />
+                  {member.avatar ? (
+                    <img
+                      src={member.avatar}
+                      alt={`${member.name} - ${member.role}`}
+                      className="w-full h-full rounded-2xl object-cover object-top border-2 border-slate-200 group-hover:border-forest-500 shadow-md group-hover:scale-105 transition-all duration-300 bg-slate-100"
+                    />
+                  ) : (
+                    <div className="w-full h-full rounded-2xl bg-forest-100 text-forest-700 flex items-center justify-center font-black text-lg border-2 border-slate-200">
+                      {member.name.substring(0, 2).toUpperCase()}
+                    </div>
+                  )}
                   {member.badge && (
                     <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-forest-800 text-white shadow-sm whitespace-nowrap">
                       {member.badge}
@@ -618,13 +736,24 @@ export default function AboutCorporatePage() {
               {/* Department / Scope Footer */}
               <div className="pt-3 border-t border-slate-100">
                 <span className="text-[10px] font-semibold text-slate-400 block truncate">
-                  {member.dept}
+                  {member.dept || 'Operations'}
                 </span>
               </div>
             </div>
           ))}
         </div>
       </section>
+
+      {/* Admin Team Member Modal */}
+      <TeamMemberModal
+        isOpen={isTeamModalOpen}
+        onClose={() => {
+          setIsTeamModalOpen(false);
+          setMemberToEdit(null);
+        }}
+        memberToEdit={memberToEdit}
+        onSaved={loadTeamMembers}
+      />
     </div>
   );
 }
