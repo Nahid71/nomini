@@ -53,10 +53,10 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
-      {/* Top announcement bar - 1.5 inches tall/wide */}
+      {/* Top announcement bar - 0.75 inches tall/wide (half of previous size) */}
       <div
-        style={{ minHeight: '1.5in' }}
-        className="bg-forest-950 text-white min-h-[1.5in] py-3 px-4 sm:px-8 flex flex-wrap items-center justify-between font-medium border-b border-forest-900 shadow-xs"
+        style={{ minHeight: '0.75in' }}
+        className="bg-forest-950 text-white min-h-[0.75in] py-2 px-4 sm:px-8 flex flex-wrap items-center justify-between font-medium border-b border-forest-900 shadow-xs"
       >
         <div className="flex items-center space-x-2 sm:space-x-3 truncate">
           <span className="text-forest-400 font-black tracking-wide text-xs sm:text-sm uppercase bg-forest-900/80 px-2.5 py-1 rounded-md border border-forest-800/80">
