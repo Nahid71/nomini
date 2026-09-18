@@ -8,6 +8,7 @@ import { useCartStore } from '@/lib/store/cartStore';
 import { useAuthStore } from '@/lib/store/authStore';
 import { ProductManagementModal } from '@/components/products/ProductManagementModal';
 import { CategoryManagementModal } from '@/components/admin/CategoryManagementModal';
+import { CategoryMegaMenu } from '@/components/store/CategoryMegaMenu';
 import {
   ShoppingBag,
   QrCode,
@@ -203,145 +204,27 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Product Categories & Sub-Categories Navigation Bar */}
-      <div className="space-y-3">
-        {/* Primary Categories Scrollable Tab Bar */}
-        <div className="flex items-center justify-between gap-3 pb-1 border-b border-slate-200/70">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-            {/* All Harvests Tab */}
-            <button
-              onClick={() => {
-                setActiveCategorySlug('all');
-                setActiveSubCategorySlug('all');
-              }}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all ${
-                activeCategorySlug === 'all'
-                  ? 'bg-forest-800 text-white shadow-md shadow-forest-900/20'
-                  : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span>All Harvests</span>
-              <span
-                className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-extrabold ${
-                  activeCategorySlug === 'all'
-                    ? 'bg-forest-700/80 text-forest-100'
-                    : 'bg-slate-100 text-slate-500'
-                }`}
-              >
-                {products.length}
-              </span>
-            </button>
-
-            {/* Category Tabs */}
-            {categories.map((cat) => {
-              const isActive = activeCategorySlug === cat.slug;
-              // Count products in this category
-              const count = products.filter(
-                (p) =>
-                  p.categoryId === cat.id ||
-                  p.category?.toLowerCase() === cat.name.toLowerCase() ||
-                  p.category?.toLowerCase().includes(cat.name.toLowerCase().split(' ')[0]),
-              ).length;
-
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => {
-                    setActiveCategorySlug(cat.slug);
-                    setActiveSubCategorySlug('all');
-                  }}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all ${
-                    isActive
-                      ? 'bg-forest-800 text-white shadow-md shadow-forest-900/20'
-                      : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80'
-                  }`}
-                >
-                  <span>{cat.name}</span>
-                  <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-extrabold ${
-                      isActive ? 'bg-forest-700/80 text-forest-100' : 'bg-slate-100 text-slate-500'
-                    }`}
-                  >
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Quick Category Management Button for Admin */}
-          {currentUser?.role === 'ADMIN' && (
-            <button
-              onClick={() => setIsCategoryModalOpen(true)}
-              title="Admin Category & Sub-Category Manager"
-              className="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-forest-800 hover:bg-slate-100 border border-slate-200 transition-colors whitespace-nowrap"
-            >
-              <Settings className="w-3.5 h-3.5 text-forest-600" />
-              <span>Category Manager</span>
-            </button>
-          )}
-        </div>
-
-        {/* Sub-Categories Horizontal Pills (Visible when a specific Category is active) */}
-        {activeCategory && activeCategory.subCategories.length > 0 && (
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 px-1 bg-slate-50/80 rounded-2xl p-2 border border-slate-200/60">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 pl-2 pr-1 flex items-center gap-1 whitespace-nowrap">
-              <Filter className="w-3 h-3 text-forest-600" />
-              Sub-Categories:
-            </span>
-
-            {/* All in Category pill */}
-            <button
-              onClick={() => setActiveSubCategorySlug('all')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                activeSubCategorySlug === 'all'
-                  ? 'bg-emerald-600 text-white shadow-sm'
-                  : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-              }`}
-            >
-              All {activeCategory.name}
-            </button>
-
-            {/* Individual Sub-Category Pills */}
-            {activeCategory.subCategories.map((sub) => {
-              const isSubActive = activeSubCategorySlug === sub.slug;
-              // Count matching products
-              const subCount = products.filter(
-                (p) =>
-                  (p.categoryId === activeCategory.id ||
-                    p.category?.toLowerCase() === activeCategory.name.toLowerCase()) &&
-                  (p.subCategoryId === sub.id ||
-                    p.subCategoryName?.toLowerCase() === sub.name.toLowerCase() ||
-                    p.title.toLowerCase().includes(sub.name.toLowerCase())),
-              ).length;
-
-              return (
-                <button
-                  key={sub.id}
-                  onClick={() => setActiveSubCategorySlug(sub.slug)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                    isSubActive
-                      ? 'bg-emerald-600 text-white shadow-sm'
-                      : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
-                  }`}
-                >
-                  <span>{sub.name}</span>
-                  {subCount > 0 && (
-                    <span
-                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                        isSubActive ? 'bg-emerald-700 text-emerald-100' : 'bg-slate-100 text-slate-500'
-                      }`}
-                    >
-                      {subCount}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </div>
+      {/* Amazon-Style Category Navigation Bar with Hover Mega-Menu */}
+      <CategoryMegaMenu
+        categories={categories}
+        activeCategorySlug={activeCategorySlug}
+        activeSubCategorySlug={activeSubCategorySlug}
+        onSelectCategory={(slug) => {
+          setActiveCategorySlug(slug);
+          setActiveSubCategorySlug('all');
+        }}
+        onSelectSubCategory={(catSlug, subSlug) => {
+          setActiveCategorySlug(catSlug);
+          setActiveSubCategorySlug(subSlug);
+        }}
+        onClearFilters={() => {
+          setActiveCategorySlug('all');
+          setActiveSubCategorySlug('all');
+        }}
+        onOpenCategoryManager={() => setIsCategoryModalOpen(true)}
+        isStaff={isStaff()}
+        totalProductsCount={products.length}
+      />
 
       {isLoading ? (
         <div className="py-20 flex flex-col items-center justify-center space-y-3">

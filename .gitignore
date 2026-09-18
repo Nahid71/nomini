@@ -43,3 +43,7 @@ Thumbs.db
 coverage/
 .turbo/
 
+# Uploads
+uploads/
+backend/uploads/
+
